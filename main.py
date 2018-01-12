@@ -208,36 +208,6 @@ def kickme(m):
         time.sleep(seconds)
         bot.kick_chat_member(chatid , userid)
 #######################################################################################################################################################################
-@bot.message_handler(commands=['addfilter'])
-def addfilter(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    isword = str(redis.sismember("filter-{}".format(chatid) , wordd))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="False":
-		t = m.text.replace('/addfilter ','')
-        redis.sadd("filter-{}".format(chatid) , "{}".format(t))
-        bot.send_message(chatid , "🍃عبارت {} با موفقیت به لیست عبارات غیرمجازی افزوده شد!".format(text))
-    elif chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="True":
-        bot.send_message(chatid , "🍃عبارت مورد نظر از قبل در لیست موجود بود!")
-#######################################################################################################################################################################
-@bot.message_handler(commands=['remfilter'])
-def remfilter(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    isword = str(redis.sismember("filter-{}".format(chatid) , wordd))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="True":
-		t = m.text.replace('/remfilter ','')
-        redis.srem("filter-{}".format(chatid) , "{}".format(t))
-        bot.send_message(chatid , "🍂عبارت {} با موفقیت از لیست عبارات غیرمجازی حذف گردید!".format(text))
-    elif chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="False":
-        bot.send_message(chatid , "🍂عبارت مورد نظر از قبل در لیست موجود نبود!")
-#######################################################################################################################################################################
 @bot.message_handler(commands=['filterlist'])
 def filterlist(m):
     text = m.text
