@@ -217,8 +217,8 @@ def addfilter(m):
     isadded = str(redis.sismember("groups" , "{}".format(chatid)))
     isword = str(redis.sismember("filter-{}".format(chatid) , wordd))
     if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="False":
-		text = m.text.replace('/addfilter ','')
-        redis.sadd("filter-{}".format(chatid) , text)
+		t = m.text.replace('/addfilter ','')
+        redis.sadd("filter-{}".format(chatid) , t)
         bot.send_message(chatid , "🍃عبارت {} با موفقیت به لیست عبارات غیرمجازی افزوده شد!".format(text))
     elif chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="True":
         bot.send_message(chatid , "🍃عبارت مورد نظر از قبل در لیست موجود بود!")
@@ -232,8 +232,8 @@ def remfilter(m):
     isadded = str(redis.sismember("groups" , "{}".format(chatid)))
     isword = str(redis.sismember("filter-{}".format(chatid) , wordd))
     if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="True":
-		text = m.text.replace('/remfilter ','')
-        redis.srem("filter-{}".format(chatid) , text)
+		t = m.text.replace('/remfilter ','')
+        redis.srem("filter-{}".format(chatid) , t)
         bot.send_message(chatid , "🍂عبارت {} با موفقیت از لیست عبارات غیرمجازی حذف گردید!".format(text))
     elif chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True" and isword=="False":
         bot.send_message(chatid , "🍂عبارت مورد نظر از قبل در لیست موجود نبود!")
