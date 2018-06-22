@@ -101,7 +101,7 @@ def add(m):
     chattype = m.chat.type
     ismod = bot.get_chat_member(chatid , userid).status
     isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    if chattype == "supergroup" and isadded=="False" and userid in sudos or ismod!="member":
+    if chattype == "supergroup" and isadded=="False" and userid in sudo_users or ismod!="member":
         redis.sadd("groups" , "{}".format(chatid))
         bot.send_message(chatid , "*⌥ Supergroup [ {} ] has been added to database by [ {} ]!*".format(m.chat.title , userid) , "Markdown" , channel)
     elif chattype == "supergroup" and isadded=="True" and userid in sudos:
