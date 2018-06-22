@@ -1,331 +1,183 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-#In the name of God
+#!/usr/bin/python
+
+"""
+KingAPI
+Version 1.0
+Code by PrinceDell
+KingCompany
+"""
+
+#//=====----- Libraries -----=====\\#
 import os
 import sys
-import json
-import random
 import urllib
-import urllib2
+import time
 import telebot
-import redis as r
-from time import sleep
-import requests as req
-from telebot import util
-from telebot import types
-from random import randint
+import termcolor
+import platform
+#import redis as Redis
 from termcolor import colored
-from urllib import urlretrieve as download
+from telebot import types,util
+from time import sleep
+#//=====----- Config-1 -----=====\\#
 reload(sys)
 sys.setdefaultencoding("utf-8")
-################################################################################
-api_token = "524110905:AAFDn4g3MS8vVPsp1T6-2YW84CLk6znQPXI" #Token must be here...
-sudos = [
-    478026278,
-    0
-] #Sudo users is must be here...
-channel = "winey" #Channel id without @
-sudo_username = "princedard" #Sudo username without @
-payment_link = "https://idpay.ir/princedell" #Your payment link
-################################################################################
-redis = r.StrictRedis(host="localhost" , port=6379)
-print colored("Getting token..." , "yellow")
-bot = telebot.TeleBot(api_token)
-print colored("Bot is online now!" , "green")
-################################################################################
-def lock_text(m , u):
-    isadded = redis.sismember("groups" , m)
-    isadmin = str(redis.sismember("group-{}".format(m) , "{}".format(u)))
-    if isadded=="True" and userid in sudos or isadmin=="True":
-        if str(redis.sismember("lock_text" , m))=="True":
-            return "🔐"
-        else:
-            return "🔓"
-def lock_photo(m , u):
-    isadded = redis.sismember("groups" , m)
-    isadmin = str(redis.sismember("group-{}".format(m) , "{}".format(u)))
-    if isadded=="True" and userid in sudos or isadmin=="True":
-        if str(redis.sismember("lock_photo" , m))=="True":
-            return "🔐"
-        else:
-            return "🔓"
-def lock_video(m , u):
-    isadded = redis.sismember("groups" , m)
-    isadmin = str(redis.sismember("group-{}".format(m) , "{}".format(u)))
-    if isadded=="True" and userid in sudos or isadmin=="True":
-        if str(redis.sismember("lock_video" , m))=="True":
-            return "🔐"
-        else:
-            return "🔓"
-#######################################################################################################################################################################
-@bot.message_handler(commands=['start'])
-def starting(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    redis.sadd("members" , "{}".format(userid))
-    markup = types.InlineKeyboardMarkup()
-    link = types.InlineKeyboardButton(text="برنامه نویس🍃" , url="https://t.me/{}".format(sudo_username))
-    channel_link = types.InlineKeyboardButton(text="کانال ما🍃" , url="https://t.me/{}".format(channel))
-    markup.add(link , channel_link)
-    bot.send_message( chatid , """
-🌟به ربات آنتی اسپم {} خوش اومدی...
-
-🐍برنامه نویسی شده به زبان قدرتمند پایتون :)
-💎پرسرعت بسیار بالا در پردازش ، قدرتمند در مدیریت و بی همتا در حفاظت از گروه شما...
-
-📌جهت فعالسازی ربات باید از طریق [درگاه پرداخت ما]({}) ربات را خریداری کرده و با گرفتن اسکرین شات از فاکتور پرداخت خود ، آن را در [چت خصوصی مدیر](https://telegram.me/{}) ربات ارسال کنید!
-_🌹لینک گروه خود را نیز در همان چت ارسال نمایید._
-""".format(bot.get_me().first_name , payment_link , sudo_username) , parse_mode="Markdown" , reply_markup=markup)
-#######################################################################################################################################################################
-@bot.message_handler(commands=['ping'])
-def ping(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    bot.send_message(chatid , "🐍انلاینم بخدا")
-#######################################################################################################################################################################
-@bot.message_handler(commands=['promote'])
-def promote(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    replied = m.reply_to_message
-    isadded = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    if chattype == "supergroup" and isadded=="False" and userid in sudos and replied:
-        redis.sadd("group-{}".format(chatid) , "{}".format(userid))
-        bot.send_message(chatid , "✨کاربر مورد نظر ارتقا رتبه یافت!")
-    elif chattype == "supergroup" and isadded=="True" and userid in sudos and replied:
-        bot.send_message(chatid , "✨کاربر مورد نظر از قبل دارای مقام بود!")
-#######################################################################################################################################################################
-@bot.message_handler(commands=['demote'])
-def demote(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    replied = m.reply_to_message
-    isadded = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos and replied:
-        redis.srem("group-{}".format(chatid) , "{}".format(userid))
-        bot.send_message(chatid , "🥀کاربر مورد نظر تنزل رتبه یافت!")
-    elif chattype == "supergroup" and isadded=="False" and userid in sudos and replied:
-        bot.send_message(chatid , "🥀کاربر مورد نظر دارای مقام نبود!")
-#######################################################################################################################################################################
+#redis = Redis.StrictRedis(host="localhost" , port=6379)
+#===================================#
+token = "601270288:AAHfClZ7pKBLno4lI01fNQYOCfNWBElbhvQ"
+bot = telebot.TeleBot(token)
+sudo_users = [ 478026278,1,2,3,4 ]
+channel_username = "WINEY"
+#===================================#
+channel = types.InlineKeyboardMarkup()
+channel.add(types.InlineKeyboardButton(text="C H A N N E L" , url="t.me/{}".format(channel_username)))
+#===================================##===================================#
+def muteall(m):
+    if str(redis.sismember("muteall" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def lockphoto(m):
+    if str(redis.sismember("photo" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def lockvideo(m):
+    if str(redis.sismember("video" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def lockvoice(m):
+    if str(redis.sismember("voice" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def locktext(m):
+    if str(redis.sismember("text" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def lockgif(m):
+    if str(redis.sismember("gif" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def locksticker(m):
+    if str(redis.sismember("sticker" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def lockmusic(m):
+    if str(redis.sismember("music" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def locklocation(m):
+    if str(redis.sismember("location" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def lockcontact(m):
+    if str(redis.sismember("contact" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def locklink(m):
+    if str(redis.sismember("link" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+def lockgame(m):
+    if str(redis.sismember("game" , m))=="True":
+        return "LOCKED"
+    else:
+        return "UNLOCKED"
+#===================================##===================================#
 @bot.message_handler(commands=['add'])
 def add(m):
     userid = m.from_user.id
     chatid = m.chat.id
     chattype = m.chat.type
+    ismod = bot.get_chat_member(chatid , userid).status
     isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    if chattype == "supergroup" and isadded=="False" and userid in sudos:
+    if chattype == "supergroup" and isadded=="False" and userid in sudos or ismod!="member":
         redis.sadd("groups" , "{}".format(chatid))
-        bot.send_message(chatid , "🍃سوپرگروه با موفقیت به لیست گروه های تحت پشتیبانی افزوده شد!")
+        bot.send_message(chatid , "*⌥ Supergroup [ {} ] has been added to database by [ {} ]!*".format(m.chat.title , userid) , "Markdown" , channel)
     elif chattype == "supergroup" and isadded=="True" and userid in sudos:
-        bot.send_message(chatid , "🍃سوپرگروه در حال حاضر در لیست گروه های تحت پشتیبانی موجود میباشد!")
+        bot.send_message(chatid , "*⌥ Supergroup [ {} ] is alreay in database!*".format(m.chat.title) , "Markdown" , channel)
 #######################################################################################################################################################################
 @bot.message_handler(commands=['rem'])
 def rem(m):
     userid = m.from_user.id
     chatid = m.chat.id
     chattype = m.chat.type
+    ismod = bot.get_chat_member(chatid , userid).status
     isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos:
+    if chattype == "supergroup" and isadded=="False" and userid in sudos or ismod!="member":
         redis.srem("groups" , "{}".format(chatid))
-        bot.send_message(chatid , "🍂سوپرگروه با موفقیت از لیست گروه های تحت پشتیبانی محروم گردید!")
+        bot.send_message(chatid , "*- Supergroup [ {} ] has been removed from database by [ {} ]*".format(m.chat.title , userid) , "Markdown" , channel)
     elif chattype == "supergroup" and isadded=="False" and userid in sudos:
-        bot.send_message(chatid , "🍂سوپرگروه در حال حاضر در لیست گروه های تحت پشتیبانی ثبت نشده است!")
-#######################################################################################################################################################################
-@bot.message_handler(commands=['info'])
-def info(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    if chattype == "supergroup" and isadded=="True":
-        if userid in sudos:
-            rank = "🥇مالک ربات"
-        elif isadmin=="True":
-            rank = "🥈مدیر گروه"
-        else:
-            rank = "🥉کاربر عادی"
-        bot.send_message(chatid , """
-👤شناسه شما : {}
-👥شناسه گروه : {}
-🍁مقام شما : {}
-""".format(userid , chatid , rank))
-#######################################################################################################################################################################
-@bot.message_handler(commands=['help'])
-def help(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    markup = types.InlineKeyboardMarkup()
-    link = types.InlineKeyboardButton(text="برنامه نویس🍃" , url="https://t.me/{}".format(sudo_username))
-    channel_link = types.InlineKeyboardButton(text="کانال ما🍃" , url="https://t.me/{}".format(channel))
-    markup.add(link , channel_link)
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True":
-        bot.send_message(chatid , """
-📖راهنمای دستورات ربات برای مدیران :
-
-🔐 [/]lock `( photo | video | gif | sticker | music | voice | location | contact | tgservice | text | caption | link | forward | filters | join | game )`
-🔓 [/]unlock `( photo | video | gif | sticker | music | voice | location | contact | tgservice | text | caption | link | forward | filters | join | game )`
-⚜️ [/]settings
-🔰 [/]modlist
-
-🔇 [/]muteall
-🔈 [/]unmuteall
-
-🚫 [/]ban ( reply )
-✅ [/]unban ( reply )
-⚜️ [/]banlist
-❌ [/]kickme
-
-📜 [/]set ( welcome | link | rules )
-➖ [/]clear ( banlist | link | rules)
-
-🌐 [/]link
-
-🚸 [/]welcome enable
-❗️ [/]welcome disable
-
-📂 [/]addfilter {TEXT}
-📄 [/]remfilter {TEXT}
-🗂 [/]filterlist
-
-🏷 [/]info
-""" , reply_markup=markup)
-#######################################################################################################################################################################
-@bot.message_handler(commands=['kickme'])
-def kickme(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    seconds = 3
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    if chattype == "supergroup" and isadded=="True":
-        bot.send_message(chatid , "🍃کاربر {} به دستور خود در {} ثانیه اینده اخراج خواهد شد!".format(userid , seconds))
-        time.sleep(seconds)
-        bot.kick_chat_member(chatid , userid)
-#######################################################################################################################################################################
-@bot.message_handler(commands=['filterlist'])
-def filterlist(m):
-    text = m.text
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    words = redis.smembers("filter-{}".format(chatid))
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    filterlist = "🍃لیست عبارات غیرمجاز گروه شما:\n\n"
-    i = 0
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True":
-        for a in words:
-            i = i + 1
-            filterlist = str(filterlist) + str(i) + " - " + str(a) + "\n"
-        bot.send_message(chatid , filterlist)
-#######################################################################################################################################################################
-@bot.message_handler(commands=['modlist'])
-def modlist(m):
-    text = m.text
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    mods = redis.smembers("group-{}".format(chatid))
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    midlost = "📜لیست مدیران گروه شما :\n\n"
-    i = 0
-    if chattype == "supergroup" and isadded=="True":
-        for m in mods:
-            i = i + 1
-            modlist = str(modlist + i + " - " + m + "\n")
-        bot.send_message(chatid , modlist)
-#######################################################################################################################################################################
-@bot.message_handler(commands=['banlist'])
-def banlist(m):
-    text = m.text
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    bans = redis.smembers("banlist-{}".format(chatid))
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    banlist = "🚫لیست افراد محروم از گروه :\n\n"
-    i = 0
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True":
-        for b in bans:
-            i = i + 1
-            banlist = str(banlist + i + " - " + b + "\n")
-        bot.send_message(chatid , banlist)
-#######################################################################################################################################################################
-@bot.message_handler(commands=['link'])
-def link(m):
-    text = m.text
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    link = redis.smembers("link-{}".format(chatid))
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True":
-        if link=="None":
-            bot.send_message(chatid , "🥀شما هنوز لینک خود را ذخیره نکرده اید!")
-        else:
-            bot.send_message(chatid , "[{}]({})".format(m.chat.title , link) , disable_web_page_preview=True , parse_mode="Markdown")
-#######################################################################################################################################################################
-@bot.message_handler(commands=['ban'])
-def ban(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    replied = m.reply_to_message
-    replied_userid = m.reply_to_message.from_user.id
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    isbanned = str(redis.sismember("banlist-{}".format(chatid) , replied_userid))
-    banisadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(replied_userid)))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True":
-        if replied and isbanned=="False":
-            if banisadmin=="True" or replied_userid in sudos:
-                bot.send_message(chatid ,"⚜️من نمیتوانم مدیران گروه و مالکین خود را از گروه محروم کنم!")
-            else:
-                redis.sadd("banlist-{}".format(chatid) , replied_userid)
-                bot.kick_chat_member(chatid , replied_userid)
-                bot.send_message(chatid , "🚫کاربر مورد نظر با موفقیت به لیست محرومین افزوده شد!")
-#######################################################################################################################################################################
-@bot.message_handler(commands=['unban'])
-def unban(m):
-    userid = m.from_user.id
-    chatid = m.chat.id
-    chattype = m.chat.type
-    replied = m.reply_to_message
-    replied_userid = m.reply_to_message.from_user.id
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    isbanned = str(redis.sismember("banlist-{}".format(chatid) , replied_userid))
-    banisadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(replied_userid)))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True":
-        if replied and isbanned=="True":
-            redis.srem("banlist-{}".format(chatid) , replied_userid)
-            bot.send_message(chatid , "✨کاربر مورد نظر از لیست محرومین خارج گردید!")
-        else:
-            bot.send_message(chatid , "💫کاربر مورد نظر محدودیتی نداشت!")
-#######################################################################################################################################################################
+        bot.send_message(chatid , "*- Supergroup [ {} ] is not on of my group!*".format(m.chat.title) , "Markdown" , channel)
+#===================================##===================================#
 @bot.message_handler(commands=['settings'])
 def locks(m):
     userid = m.from_user.id
     chatid = m.chat.id
     chattype = m.chat.type
+    ismod = bot.get_chat_member(chatid , userid).status
     isadded = str(redis.sismember("groups" , "{}".format(chatid)))
-    isadmin = str(redis.sismember("group-{}".format(chatid) , "{}".format(userid)))
-    if chattype == "supergroup" and isadded=="True" and userid in sudos or isadmin=="True":
-        bot.send_message(chatid , """🍃تنظیمات سوپرگروه به شرح زیر میباشد :
-Lock text = {}""".format(lock_text(chatid , userid)))
-#######################################################################################################################################################################
+    if chattype == "supergroup" and isadded=="True" and userid in sudos or ismod!="member":
+        bot.send_message(chatid , """*MuteAll* : _[{}]_
+*Photo* : _[LOCKED]_
+*Video* : _[LOCKED]_
+*Voice* : _[LOCKED]_
+*Sticker* : _[LOCKED]_
+*Text* : _[LOCKED]_""".format(muteall(chatid)) , "Markdown" , channel)
+#===================================##===================================#
+@bot.message_handler(commands=['ping'])
+def ping(m):
+    if m.chat.type=="supergroup":
+        bot.send_message(m.chat.id , "*⌥ ONLINE AT ALL THE TIME!*" , "Markdown")
+#===================================##===================================#
+#===================================##===================================##===================================##===================================#
+@bot.message_handler(commands=['lock'])
+def locks(m):
+    chatid = m.chat.id
+    userid = m.from_user.id
+    ismod = bot.get_chat_member(chatid , userid).status
+    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
+    lock = m.text.split()[1]
+    if isadded=="True" and m.chat.type=="supergroup":
+        if lock=="photo" and (ismod!="member" or userid in sudo_users):
+            if lockphoto(chatid)!="LOCKED":
+                redis.sadd("photo" , chatid)
+                bot.send_message(chatid , "*⌥ Lock {} has been enabled!*".format(lock) , "Markdown")
+            else:
+                bot.send_message(chatid , "*⌥ Lock {} is alreay locked here.*".format(lock) , "Markdown")
+        if lock=="text" and (ismod!="member" or userid in sudo_users):
+            if locktext(chatid)!="LOCKED":
+                redis.sadd("text" , chatid)
+                bot.send_message(chatid , "*⌥ Lock {} has been enabled!*".format(lock) , "Markdown")
+            else:
+                bot.send_message(chatid , "*⌥ Lock {} is alreay locked here.*".format(lock) , "Markdown")
+#===================================##===================================#
 
-#######################################################################################################################################################################
-try:
-    bot.polling(True)
-except:
-    pass
+#===================================##===================================#
+@bot.message_handler(content_types=['photo'])
+def locks_deleting(m):
+    chatid = m.chat.id
+    userid = m.from_user.id
+    ismod = bot.get_chat_member(chatid , userid).status
+    isadded = str(redis.sismember("groups" , "{}".format(chatid)))
+    lock = m.text.split()[1]
+    if m.chat.type=="supergroup" and isadded=="True" and lockphoto=="LOCKED":
+        if ismod=="member" or userid !in sudo_users:
+            bot.delete_message(chatid , m.message_id)
+#===================================##===================================#
+while True:
+    sleep(1)
+    try:
+        bot.polling(True)
+    except:
+        continue
