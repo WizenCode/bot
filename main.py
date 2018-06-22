@@ -176,7 +176,6 @@ def locks_deleting(m):
             bot.delete_message(chatid , m.message_id)
 #===================================##===================================#
 while True:
-    sleep(1)
     try:
         bot.polling(True)
     except:
