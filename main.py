@@ -16,14 +16,14 @@ import time
 import telebot
 import termcolor
 import platform
-#import redis as Redis
+import redis as Redis
 from termcolor import colored
 from telebot import types,util
 from time import sleep
 #//=====----- Config-1 -----=====\\#
 reload(sys)
 sys.setdefaultencoding("utf-8")
-#redis = Redis.StrictRedis(host="localhost" , port=6379)
+redis = Redis.StrictRedis(host="localhost" , port=6379)
 #===================================#
 token = "601270288:AAHfClZ7pKBLno4lI01fNQYOCfNWBElbhvQ"
 bot = telebot.TeleBot(token)
@@ -172,7 +172,7 @@ def locks_deleting(m):
     isadded = str(redis.sismember("groups" , "{}".format(chatid)))
     lock = m.text.split()[1]
     if m.chat.type=="supergroup" and isadded=="True" and lockphoto=="LOCKED":
-        if ismod=="member" or userid !in sudo_users:
+        if ismod=="member" or userid not in sudo_users:
             bot.delete_message(chatid , m.message_id)
 #===================================##===================================#
 while True:
